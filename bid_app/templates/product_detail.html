@@ -394,7 +394,7 @@
         var start = document.getElementById('start_bid').value;
         
         var status = document.getElementById('pro_status').value;
-        mydate = new Date(start).getTime() + (1000*60*60);
+        mydate = new Date(start).getTime() + (1000*60*5);
         diftime = mydate - new Date().getTime();
         var days = Math.floor(diftime / (1000*60*60*24));
         var hours   =  Math.floor((diftime % (1000*60*60*24)) / (1000*60*60));
@@ -410,7 +410,16 @@
                 if (this.readyState == 4 && this.status == 200) {
                     data = JSON.parse(this.responseText);
                     console.log(data);
-                    alert("Winner for this product has been announced.")
+                    if (data.is_winner) {
+                        alert("Congratulations! You've won this auction!\n\nSeller Details:\nName: " + data.seller_name + 
+                              "\nContact: " + data.seller_contact + 
+                              "\nPayment Amount: ₹" + data.final_price);
+                    } else if (data.is_seller) {
+                        alert("Auction completed!\n\nWinner Details:\nName: " + data.winner_name + 
+                              "\nContact: " + data.winner_contact);
+                    } else {
+                        alert("This auction has ended. The winner has been announced.");
+                    }
                     window.location = data.myurl;
                 }
             };

@@ -40,16 +40,6 @@
                 </select>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Select Auction Type</label>
-                <select class="form-control" name="bid_type" onchange="changemxmin()">
-                    <option value="">---select Auction Type---</option>
-                    <option value="Auction">Auction</option>
-                </select>
-            </div>
-        </div>
     </div>
 
     <div class="form-row">
@@ -79,7 +69,7 @@
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                <label id="auction_label">Minimum Price</label>
+                <label>Minimum Price</label>
                 <input type="number" class="form-control" id="exampleInputPassword1" name="price">
             </div>
         </div>
@@ -100,11 +90,5 @@
 </form>
 </div>
 </div>
-
-  <script>
-        function changemxmin(){
-            document.getElementById('auction_label').innerHTML = "Minimum Price";
-        }
-  </script>
 
 {% endblock %}

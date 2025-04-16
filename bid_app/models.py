@@ -36,7 +36,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     status  = models.CharField(max_length=100,null=True, default='pending')
-    bid_type  = models.CharField(max_length=100,null=True)
+    bid_type  = models.CharField(max_length=100,null=True, default='Auction')
     payment_status  = models.CharField(max_length=100,null=True,default='pending')
     winner  = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='winner')
     user  = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='seller')

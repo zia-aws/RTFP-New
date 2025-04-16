@@ -61,28 +61,49 @@ def login_user(request):
         u = request.POST['uname']
         p = request.POST['pwd']
         user = authenticate(username=u, password=p)
-        sign = ""
-        if user and not user.is_staff:
-            login(request, user)
-            messages.success(request, "Logged in Successfully")
-            return redirect('home')
-        else:
-            messages.success(request, "Invalid credential")
+        
+        if user is None:
+            messages.error(request, "User not found. Please check your username.")
+            return render(request, 'login.html')
+            
+        if not user.check_password(p):
+            messages.error(request, "Incorrect password. Please try again.")
+            return render(request, 'login.html')
+            
+        if user.is_staff:
+            messages.error(request, "Please use the admin login page for admin access.")
+            return render(request, 'login.html')
+            
+        try:
+            auctionuser = AuctionUser.objects.get(user=user)
+            if auctionuser.status == "pending":
+                messages.warning(request, "Your profile is under review. Please wait for admin verification.")
+                return render(request, 'login.html')
+        except AuctionUser.DoesNotExist:
+            messages.warning(request, "Please complete your profile setup first.")
+            return render(request, 'login.html')
+            
+        login(request, user)
+        messages.success(request, "Logged in successfully!")
+        return redirect('home')
+        
     return render(request, 'login.html')
 
 
 def Add_Product(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    if request.user.is_authenticated:
-        try:
-            auctionuser = AuctionUser.objects.get(user=request.user)
-            if auctionuser.status == "pending":
-                messages.success(request, "Your verification is pending. Complete your additional detail and email verification. If these are already completed then try login after sometime. We are working on your detail verification. Thanks!")
-        except AuctionUser.DoesNotExist:
-            messages.warning(request, "Please complete your profile setup to continue.")
+    
+    try:
+        auctionuser = AuctionUser.objects.get(user=request.user)
+        if auctionuser.status == "pending":
+            messages.success(request, "Your verification is pending. Complete your additional detail and email verification. If these are already completed then try login after sometime. We are working on your detail verification. Thanks!")
+            return redirect('profile', request.user.id)
+    except AuctionUser.DoesNotExist:
+        messages.warning(request, "Please complete your profile setup to continue.")
+        return redirect('profile', request.user.id)
+    
     cat = Category.objects.all()
-    sell = AuctionUser.objects.get(user=request.user)
     if request.method == "POST":
         c = request.POST['cat']
         p = request.POST['p_name']
@@ -91,9 +112,8 @@ def Add_Product(request):
         start = request.POST['start']
         end = request.POST['interval_price']
         desc = request.POST['desc']
-        bid_type = request.POST['bid_type']
         cat_obj = Category.objects.get(id=c)
-        pro1=Product.objects.create(description=desc, bid_type=bid_type, status="pending",session=start, interval_price=end, category=cat_obj, name=p, min_price=pr, final_price=pr, images=im, user=request.user)
+        pro1=Product.objects.create(description=desc, bid_type="Auction", status="pending",session=start, interval_price=end, category=cat_obj, name=p, min_price=pr, final_price=pr, images=im, user=request.user)
         messages.success(request, "Product added successfully.")
         return redirect('view_product')
     d = {'cat': cat}
@@ -118,7 +138,6 @@ def edit_product(request, pid):
         start = request.POST['start']
         end = request.POST['interval_price']
         desc = request.POST['desc']
-        bid_type = request.POST['bid_type']
         try:
             i = request.FILES['image']
             data.images = i
@@ -126,7 +145,7 @@ def edit_product(request, pid):
         except:
             pass
         cat_obj = Category.objects.get(id=c)
-        Product.objects.filter(id=pid).update(description=desc, bid_type=bid_type, session=start, interval_price=end, category=cat_obj, name=p, min_price=pr, final_price=pr, user=request.user)
+        Product.objects.filter(id=pid).update(description=desc, bid_type="Auction", session=start, interval_price=end, category=cat_obj, name=p, min_price=pr, final_price=pr, user=request.user)
         messages.success(request, "Product Updated")
         return redirect('view_product')
     d = {'cat': cat, 'data':data}
@@ -169,15 +188,31 @@ def product_detail(request, pid):
 def make_participants(request, pid):
     if not request.user.is_authenticated:
         return redirect('login')
-    if request.user.is_authenticated:
+    
+    try:
         auctionuser = AuctionUser.objects.get(user=request.user)
         if auctionuser.status == "pending":
-            messages.success(request, "Your verification is pending. complete your additional detail and email verification. if these are already completed then try login after sometime.We are working on your detail verification.Thanks!")
+            messages.success(request, "Your verification is pending. Complete your additional detail and email verification. If these are already completed then try login after sometime. We are working on your detail verification. Thanks!")
             return redirect('profile', request.user.id)
-    product = Product.objects.get(id=pid)
-    participant = Participants.objects.create(user=request.user, product=product)
-    messages.success(request, "Added for participant successfully.")
-    return redirect('product_detail', pid)
+    except AuctionUser.DoesNotExist:
+        messages.warning(request, "Please complete your profile setup to continue.")
+        return redirect('profile', request.user.id)
+    
+    try:
+        product = Product.objects.get(id=pid)
+        # Check if user is already a participant
+        existing_participant = Participants.objects.filter(user=request.user, product=product).exists()
+        if existing_participant:
+            messages.warning(request, "You are already a participant in this auction.")
+            return redirect('product_detail', pid)
+            
+        # Create new participant
+        participant = Participants.objects.create(user=request.user, product=product)
+        messages.success(request, "Successfully added as a participant.")
+        return redirect('product_detail', pid)
+    except Product.DoesNotExist:
+        messages.error(request, "Product not found.")
+        return redirect('all_product')
 
 def getbidhistory(request, pid):
     if not request.user.is_authenticated:
@@ -242,10 +277,29 @@ def changelivetocomplete(request, pid):
     product = Product.objects.get(id=pid)
     winner = ParticipantsHistory.objects.filter(product=product).last()
     product.status = "closed"
+    
+    response_data = {'myurl': '/'}
+    
     if winner:
         product.winner = winner.user
+        
+        # Add winner and seller details to response
+        if request.user == winner.user:
+            response_data.update({
+                'is_winner': True,
+                'seller_name': f"{product.user.first_name} {product.user.last_name}",
+                'seller_contact': product.user.auctionuser_set.first().contact,
+                'final_price': str(product.final_price)
+            })
+        elif request.user == product.user:
+            response_data.update({
+                'is_seller': True,
+                'winner_name': f"{winner.user.first_name} {winner.user.last_name}",
+                'winner_contact': winner.user.auctionuser_set.first().contact
+            })
+    
     product.save()
-    return JsonResponse({'myurl':'/'})
+    return JsonResponse(response_data)
 
 def changeupcomingtolive(request, pid):
     product = Product.objects.get(id=pid)
