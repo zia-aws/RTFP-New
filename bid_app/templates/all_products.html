@@ -1,0 +1,35 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">All Products</h2>
+        </div>
+    </div>
+    <div class="row">
+        {% for i in product %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="{{i.images.url}}" class="card-img-top" alt="{{i.name}}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{i.name}}</h5>
+                    <p class="card-text">{{i.description|truncatechars:100}}</p>
+                    <p class="card-text"><strong>Category:</strong> {{i.category.name}}</p>
+                    <p class="card-text"><strong>Minimum Price:</strong> ${{i.min_price}}</p>
+                    <p class="card-text"><strong>Status:</strong> {{i.status|title}}</p>
+                    <a href="/product_detail/{{i.id}}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                No products available at the moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

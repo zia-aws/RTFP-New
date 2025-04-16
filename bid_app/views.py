@@ -329,7 +329,7 @@ def all_product(request):
         except AuctionUser.DoesNotExist:
             messages.warning(request, "Please complete your profile setup to continue.")
     product = Product.objects.filter().exclude(status="pending")
-    return render(request, 'HotProducts.html', {'product':product})
+    return render(request, 'all_products.html', {'product':product})
 
 
 def admin_home(request):
