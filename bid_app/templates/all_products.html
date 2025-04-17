@@ -2,31 +2,120 @@
 {% load static %}
 
 {% block body %}
-<div class="container">
+<style>
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 100%;
+        padding: 0;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    .product-card .card-img-top {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .product-card .card-body {
+        padding: 15px;
+    }
+    
+    .product-card .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    
+    .product-card .card-text {
+        color: #666;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+    
+    .product-card .btn-primary {
+        background-color: #E63946;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .product-card .btn-primary:hover {
+        background-color: #c1121f;
+    }
+    
+    .product-card .price-tag {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #E63946;
+    }
+    
+    .product-card .status-badge {
+        display: inline-block;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .product-card .status-live {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .product-card .status-upcoming {
+        background-color: #FFC107;
+        color: #333;
+    }
+    
+    .product-card .status-closed {
+        background-color: #9E9E9E;
+        color: white;
+    }
+</style>
+
+<div class="container" style="padding: 40px 0;">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="text-center mb-4">All Products</h2>
+            <h2 class="text-center mb-4" style="font-weight: 600; color: #333;">All Products</h2>
         </div>
     </div>
     <div class="row">
         {% for i in product %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{i.images.url}}" class="card-img-top" alt="{{i.name}}" style="height: 200px; object-fit: cover;">
+        <div class="col-md-4 col-sm-6">
+            <div class="card product-card">
+                <img src="{{i.images.url}}" class="card-img-top" alt="{{i.name}}">
                 <div class="card-body">
+                    <span class="status-badge status-{{i.status|lower}}">{{i.status|title}}</span>
                     <h5 class="card-title">{{i.name}}</h5>
-                    <p class="card-text">{{i.description|truncatechars:100}}</p>
+                    <p class="card-text">{{i.description|truncatechars:80}}</p>
                     <p class="card-text"><strong>Category:</strong> {{i.category.name}}</p>
-                    <p class="card-text"><strong>Minimum Price:</strong> ${{i.min_price}}</p>
-                    <p class="card-text"><strong>Status:</strong> {{i.status|title}}</p>
+                    <p class="card-text price-tag">₹ {{i.min_price}}</p>
                     <a href="/product_detail/{{i.id}}" class="btn btn-primary">View Details</a>
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-md-12">
-            <div class="alert alert-info">
-                No products available at the moment.
+            <div class="alert alert-info text-center">
+                <i class="fa fa-info-circle"></i> No products available at the moment.
             </div>
         </div>
         {% endfor %}
