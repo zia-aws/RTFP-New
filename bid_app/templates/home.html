@@ -8,6 +8,21 @@
         padding-left:20px
      
     }
+    .buy-now-button {
+        background: #f6bbc0;
+        background-repeat: no-repeat;
+        background-position: 0 0;
+        cursor: pointer;
+        display: inline-block;
+        padding: 10px 20px;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    .buy-now-button.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 </style>
 
 <div class="be">
@@ -60,7 +75,7 @@
                                         <div class="bid-option-row">
                                             </span>
                                             <span class="bid-now-button">
-                                                <a href="/product_detail/{{i.id}}">
+                                                <a href="{% url 'product_detail' i.id %}">
                                                     <input type="button" id="BidNow" value="BID NOW" class="button btn-lg bid-now" title="Click to Place BID" />
                                                 </a>
                                             </span>
@@ -89,13 +104,13 @@
                                 <div class="col" style="margin-bottom: 10px;">
                                     <div class="auction-block">
                                         <h4>
-                                            <a href="/product_detail/{{i.id}}"  title="Click to View in Full Page">{{i.name}}</a></h4>
+                                            <a href="{% url 'product_detail' i.id %}"  title="Click to View in Full Page">{{i.name}}</a></h4>
                                             <span class="price">MRP : ₹ {{i.min_price}}</span>
                                             <span style="color:green;">This product is for Auction</span>
                                             
                                             <figure class="product-image">
                                                 
-                                                <a href="/product_detail/{{i.id}}" title="Click to View in Full Page">
+                                                <a href="{% url 'product_detail' i.id %}" title="Click to View in Full Page">
                                                     <img src="{{i.images.url}}" style="max-width: 220px;width: auto;max-height: 245px; height: auto;" alt="{{i.name}}"/>
                                                 </a>
                                             </figure>
@@ -130,12 +145,12 @@
                                 <div class="col" style="margin-bottom: 10px;">
                                     <div class="auction-block">
                                         <h4>
-                                            <a href="/product_detail/{{i.id}}"  title="Click to View in Full Page">{{i.name}}</a></h4>
+                                            <a href="{% url 'product_detail' i.id %}"  title="Click to View in Full Page">{{i.name}}</a></h4>
                                             <span class="auction-id">Auction ID: {{i.id}}</span>
                                             <span style="color:green;">This product is for Auction</span>
                                         <figure class="product-image">
                                             
-                                            <a href="/product_detail/{{i.id}}" title="Click to View in Full Page"><img src="{{i.images.url}}" style="max-width: 220px;width: auto;max-height: 245px; height: auto;" alt="25 bidmedia Credits"  /></a>
+                                            <a href="{% url 'product_detail' i.id %}" title="Click to View in Full Page"><img src="{{i.images.url}}" style="max-width: 220px;width: auto;max-height: 245px; height: auto;" alt="25 bidmedia Credits"  /></a>
                                         </figure>
                                         <div class="auction-status-row">
                                             <span class="auction-status">{{i.status}}</span>
@@ -150,7 +165,7 @@
                                         <!--/.bid-action-->
                                         <div class="bid-option-row">
                                             
-                                            <a id="rptrClosedProduct_lnkCart_0" title="Buy Now Not Available" class="aspNetDisabled button buy-now" title="Add to Cart" style="background:#f6bbc0 url({% static 'images/bgi/buy-button.png' %}) no-repeat 0 0;cursor:pointer;">Buy Now</a>
+                                            <a id="rptrClosedProduct_lnkCart_0" title="Buy Now Not Available" class="aspNetDisabled button buy-now-button disabled" data-bg-image="{% static 'images/bgi/buy-button.png' %}">Buy Now</a>
                                         </div>
                                     </div>
                                     <!--/.auction-block-->
@@ -245,6 +260,12 @@
             }
         },1000);
     
-    
+    // Add background image after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        var buyButton = document.querySelector('.buy-now-button');
+        if (buyButton) {
+            buyButton.style.backgroundImage = 'url(' + buyButton.getAttribute('data-bg-image') + ')';
+        }
+    });
 </script>
 {% endblock %}

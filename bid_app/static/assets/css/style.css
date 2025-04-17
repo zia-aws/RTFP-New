@@ -1,5 +1,3 @@
-
-
 /*Import Global Compulsory CSS Files*/
 @import url(ie8.css);
 @import url(blocks.css);
@@ -587,7 +585,7 @@ a.thumbnail {
 	padding: 40px 0; 	
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #eee;
-	background: url(../img/breadcrumbs.html) repeat;
+	background: url(../img/patterns/breadcrumbs.png) repeat;
 }
 
 /*Gallery Page
@@ -794,7 +792,7 @@ ul.blog-tags a:hover i {
 
 .slider-promo-info-bg {
 	padding: 25px 20px 20px;
-	background: url(../img/bg-black.html) repeat;
+	background: url(../img/bg-black.png) repeat;
 }
 
 .slider-promo-info span.big-size { 
