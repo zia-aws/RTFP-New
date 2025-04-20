@@ -1,6 +1,6 @@
 # RTFP - Real-Time Field Project
 
-A Django-based web application for managing farming and auction-related activities.
+A Django-based web application for managing auction-related activities.
 
 ## Technology Stack
 
