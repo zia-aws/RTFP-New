@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-9v^n)gbon60^+e4i=(5tz7*1tgv96udmo@ag1qiak&3*3z_i03
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['rtfp-new-production.up.railway.app', '.railway.app']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
